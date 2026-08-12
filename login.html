@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Connexion — Tremplin</title>
+<link rel="stylesheet" href="css/marketing.css">
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="js/supabase-client.js"></script>
+</head>
+<body>
+
+<header>
+  <div class="container nav">
+    <a href="home.html" class="logo"><span class="logo-dot"></span>Tremplin</a>
+    <div class="nav-links">
+      <a href="signup.html" class="btn btn-primary">S'inscrire</a>
+    </div>
+  </div>
+</header>
+
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-head">
+      <h1>Content de te revoir</h1>
+      <p>Connecte-toi pour reprendre ton parcours.</p>
+    </div>
+
+    <form id="loginForm" novalidate>
+      <div class="field" id="emailField">
+        <label for="email">Adresse email</label>
+        <input type="email" id="email" placeholder="toi@exemple.com">
+        <div class="field-error">Entre une adresse email valide.</div>
+      </div>
+      <div class="field" id="passwordField">
+        <label for="password">Mot de passe</label>
+        <input type="password" id="password" placeholder="Ton mot de passe">
+        <div class="field-error">Entre ton mot de passe.</div>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block" id="submitBtn">Se connecter</button>
+      <div id="formError" style="color:#E0503A;font-size:13px;margin-top:12px;text-align:center;"></div>
+    </form>
+
+    <div class="auth-divider">ou</div>
+    <button class="btn btn-ghost btn-block" onclick="alert('Connexion Google à intégrer')">Continuer avec Google</button>
+
+    <div class="auth-switch">Pas encore de compte ? <a href="signup.html">Créer un compte</a></div>
+  </div>
+</div>
+
+<script>
+function setError(fieldId, hasError){
+  document.getElementById(fieldId).classList.toggle('has-error', hasError);
+}
+
+document.getElementById('loginForm').addEventListener('submit', async function(e){
+  e.preventDefault();
+
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const passwordOk = password.length > 0;
+
+  setError('emailField', !emailValid);
+  setError('passwordField', !passwordOk);
+  document.getElementById('formError').textContent = '';
+
+  if(!emailValid || !passwordOk){
+    document.getElementById(!emailValid ? 'email' : 'password').focus();
+    return;
+  }
+
+  const submitBtn = document.getElementById('submitBtn');
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Connexion en cours...';
+
+  const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+
+  submitBtn.disabled = false;
+  submitBtn.textContent = 'Se connecter';
+
+  if(error){
+    document.getElementById('formError').textContent = 'Email ou mot de passe incorrect.';
+    return;
+  }
+
+  window.location.href = 'dashboard.html';
+});
+</script>
+
+</body>
+</html>

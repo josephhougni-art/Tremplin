@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Débloquer la suite — Tremplin</title>
+<link rel="stylesheet" href="css/marketing.css">
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="js/supabase-client.js"></script>
+<script src="https://cdn.kkiapay.me/k.js"></script>
+</head>
+<body>
+
+<header>
+  <div class="container nav">
+    <a href="dashboard.html" class="logo"><span class="logo-dot"></span>Tremplin</a>
+    <div class="nav-links">
+      <a href="dashboard.html" class="btn btn-ghost">← Retour au tableau de bord</a>
+    </div>
+  </div>
+</header>
+
+<div class="checkout-wrap">
+  <div class="container">
+    <div class="section-head" style="margin-bottom:36px;">
+      <div class="eyebrow">Dernière étape</div>
+      <h2>Débloque les 6 phases restantes.</h2>
+      <p>Paiement unique, accès immédiat, à vie.</p>
+    </div>
+
+    <div class="checkout-grid">
+
+      <div class="checkout-summary">
+        <div class="eyebrow">Récapitulatif</div>
+        <h2>Pack complet Tremplin</h2>
+        <div class="summary-line"><span class="l">Phases débloquées</span><span>2 → 7</span></div>
+        <div class="summary-line"><span class="l">Documents générés</span><span>15 documents</span></div>
+        <div class="summary-line"><span class="l">Accès</span><span>À vie</span></div>
+        <div class="summary-line total"><span>Total</span><span id="priceDisplay">…</span></div>
+        <ul class="summary-included">
+          <li>✓ Validation marché & étude concurrentielle</li>
+          <li>✓ Cadrage produit & persona</li>
+          <li>✓ Business plan & plan financier</li>
+          <li>✓ Structuration juridique adaptée à ton pays</li>
+          <li>✓ Plan de lancement & supports de vente</li>
+          <li>✓ Tableau de bord de suivi post-lancement</li>
+        </ul>
+      </div>
+
+      <div class="checkout-form">
+        <h2 id="paymentTitle">Paiement</h2>
+        <p id="paymentLoading" style="font-size:14px;color:var(--ink-dim);">Chargement…</p>
+
+        <div id="africaPayment" style="display:none;">
+          <p style="font-size:13.5px;color:var(--ink-dim);margin-bottom:18px;">Paiement par Mobile Money (Wave, Orange Money, MTN...) ou carte, via Kkiapay.</p>
+          <button id="kkiapayBtn" class="btn btn-primary btn-block">Payer 15 000 F</button>
+        </div>
+
+        <div id="europePayment" style="display:none;">
+          <p style="font-size:13.5px;color:var(--ink-dim);margin-bottom:18px;">Paiement sécurisé par carte bancaire, via Stripe.</p>
+          <button id="stripeBtn" class="btn btn-primary btn-block">Payer 25,00 €</button>
+        </div>
+
+        <div id="paymentError" style="color:#E0503A;font-size:13px;margin-top:14px;text-align:center;"></div>
+        <div class="secure-note">🔒 Paiement sécurisé — vérifié côté serveur avant tout déblocage</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+const AFRICAN_COUNTRIES = new Set([
+  "Bénin", "Côte d'Ivoire", "Sénégal", "Togo", "Mali", "Burkina Faso",
+  "Cameroun", "Niger", "Guinée", "République Démocratique du Congo"
+]);
+
+let currentUser = null;
+
+async function initCheckout(){
+  currentUser = await requireAuth();
+  if(!currentUser) return;
+
+  const { data } = await supabaseClient
+    .from('progress')
+    .select('selected_country, unlocked_up_to')
+    .eq('user_id', currentUser.id)
+    .maybeSingle();
+
+  if(data && data.unlocked_up_to >= 6){
+    window.location.href = 'dashboard.html';
+    return;
+  }
+
+  const country = (data && data.selected_country) || '';
+  const isAfrica = AFRICAN_COUNTRIES.has(country);
+
+  document.getElementById('paymentLoading').style.display = 'none';
+
+  if(isAfrica){
+    document.getElementById('priceDisplay').textContent = '15 000 F';
+    document.getElementById('africaPayment').style.display = 'block';
+  } else {
+    document.getElementById('priceDisplay').textContent = '25,00 €';
+    document.getElementById('europePayment').style.display = 'block';
+  }
+}
+
+// ---- Paiement Afrique : Kkiapay ----
+document.getElementById('kkiapayBtn').addEventListener('click', function(){
+  openKkiapayWidget({
+    amount: 15000,
+    key: "TA-CLE-PUBLIQUE-KKIAPAY", // à remplacer — voir js/supabase-client.js pour le principe
+    sandbox: true, // passer à false une fois en production
+    data: currentUser.id,
+  });
+});
+
+addSuccessListener(async function(response){
+  document.getElementById('paymentError').textContent = '';
+  try{
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    const res = await fetch(SUPABASE_URL + '/functions/v1/verify-kkiapay-payment', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + session.access_token,
+      },
+      body: JSON.stringify({ transactionId: response.transactionId }),
+    });
+    const result = await res.json();
+    if(!res.ok || result.error){
+      document.getElementById('paymentError').textContent = "Le paiement n'a pas pu être confirmé. Contacte le support si le montant a été débité.";
+      return;
+    }
+    window.location.href = 'dashboard.html';
+  } catch(e){
+    document.getElementById('paymentError').textContent = "Erreur de vérification du paiement.";
+  }
+});
+
+// ---- Paiement Europe : Stripe ----
+document.getElementById('stripeBtn').addEventListener('click', async function(){
+  const btn = this;
+  btn.disabled = true;
+  btn.textContent = 'Redirection...';
+  document.getElementById('paymentError').textContent = '';
+
+  try{
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    const { data, error } = await supabaseClient.functions.invoke('create-stripe-session', {
+      body: {
+        successUrl: window.location.origin + '/dashboard.html',
+        cancelUrl: window.location.origin + '/checkout.html',
+      }
+    });
+    if(error || !data.url) throw new Error('no url');
+    window.location.href = data.url;
+  } catch(e){
+    btn.disabled = false;
+    btn.textContent = 'Payer 25,00 €';
+    document.getElementById('paymentError').textContent = "Erreur lors de la création du paiement.";
+  }
+});
+
+initCheckout();
+</script>
+
+</body>
+</html>

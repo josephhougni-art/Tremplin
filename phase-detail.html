@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phase 2 — Validation / étude de marché — Tremplin</title>
+<link rel="stylesheet" href="css/marketing.css">
+</head>
+<body>
+
+<header>
+  <div class="container nav">
+    <a href="home.html" class="logo"><span class="logo-dot"></span>Tremplin</a>
+    <div class="nav-links">
+      <a href="dashboard.html" class="btn btn-ghost">Mon tableau de bord</a>
+    </div>
+  </div>
+</header>
+
+<section class="container phase-detail-hero">
+  <div class="phase-detail-crumb"><a href="dashboard.html">Tableau de bord</a> / Phase 2</div>
+  <div class="phase-detail-badgerow">
+    <div class="phase-num-badge">02</div>
+    <span class="tag free" style="background:var(--teal-soft);color:var(--teal-dark);padding:5px 12px;border-radius:100px;font-family:'Manrope',sans-serif;font-weight:700;font-size:12px;">Débloqué</span>
+  </div>
+  <h1>Validation / étude de marché</h1>
+  <p>Confronte ton idée à de vrais retours clients et à la concurrence, avant d'aller plus loin. Cette phase te demande environ 10 à 15 minutes si tu as déjà mené tes entretiens.</p>
+
+  <div class="phase-nav-strip" id="phaseNavStrip"></div>
+</section>
+
+<div class="container phase-detail-grid">
+  <div>
+    <div class="dash-card">
+      <h2>Ce qu'on va te demander</h2>
+      <div class="question-preview" id="questionPreview"></div>
+    </div>
+  </div>
+
+  <div>
+    <div class="dash-card" style="margin-bottom:20px;">
+      <h2>Documents que tu obtiendras</h2>
+      <div id="outputList"></div>
+    </div>
+
+    <div class="dash-card">
+      <h2>Avant de commencer</h2>
+      <p style="font-size:13.5px;color:var(--ink-dim);margin-bottom:18px;">Prépare si possible tes notes d'entretiens clients et une liste de 3 à 5 concurrents — ça rendra les documents générés plus précis.</p>
+      <a href="app.html" class="btn btn-primary btn-block">Commencer cette phase</a>
+    </div>
+  </div>
+</div>
+
+<footer class="container">
+  <div class="footer-row">
+    <div>© 2026 Tremplin. Tous droits réservés.</div>
+    <div class="footer-links">
+      <a href="cgv.html">CGV</a><a href="cgu.html">CGU</a><a href="confidentialite.html">Confidentialité</a>
+    </div>
+  </div>
+</footer>
+
+<script src="js/phase1.js"></script>
+<script src="js/phase2.js"></script>
+<script src="js/phase3.js"></script>
+<script src="js/phase4.js"></script>
+<script src="js/phase5.js"></script>
+<script src="js/phase6.js"></script>
+<script src="js/phase7.js"></script>
+<script src="js/data.js"></script>
+<script>
+const CURRENT_PHASE_INDEX = 1; // Phase 2, exemple
+
+const OUTPUT_ICONS = ['📋','📊','✅','📐','🧑\u200d💼','💡','🖼️','📈','💰','📣','⚖️','📄','🗓️','🛣️','🛍️','📊','📝'];
+
+// Fil des 7 phases
+document.getElementById('phaseNavStrip').innerHTML = PHASES.map((p,i) => `
+  <div class="phase-nav-chip ${i===CURRENT_PHASE_INDEX?'current':''}">${i+1}. ${p.title}</div>
+`).join('');
+
+// Aperçu des questions, groupées par bloc
+const phase = PHASES[CURRENT_PHASE_INDEX];
+document.getElementById('questionPreview').innerHTML = phase.blocks.map(b => `
+  <div class="block-tag">${b.label} · ${b.title}</div>
+  ${b.questions.map(q => `<div class="q-preview-item">${q.label}</div>`).join('')}
+`).join('');
+
+// Liste des documents produits
+document.getElementById('outputList').innerHTML = phase.docs.map((d,i) => `
+  <div class="output-card">
+    <div class="output-icon">${OUTPUT_ICONS[i % OUTPUT_ICONS.length]}</div>
+    <div>
+      <h3>${d.label}</h3>
+      <p>Généré à partir de tes réponses, prêt à télécharger.</p>
+    </div>
+  </div>
+`).join('');
+</script>
+
+</body>
+</html>

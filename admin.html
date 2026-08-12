@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Espace admin — Tremplin</title>
+<link rel="stylesheet" href="css/marketing.css">
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="js/supabase-client.js"></script>
+</head>
+<body>
+
+<header>
+  <div class="container nav">
+    <a href="index.html" class="logo"><span class="logo-dot"></span>Tremplin <span style="font-size:11px;color:var(--ink-dim);font-weight:600;">Admin</span></a>
+    <div class="nav-links">
+      <a href="dashboard.html" class="btn btn-ghost">Mon compte</a>
+    </div>
+  </div>
+</header>
+
+<div class="dash-wrap">
+  <div class="container dash-header">
+    <h1>Espace admin</h1>
+  </div>
+
+  <div class="container" id="adminContent">
+    <p style="color:var(--ink-dim);">Chargement…</p>
+  </div>
+</div>
+
+<script>
+async function initAdmin(){
+  const user = await requireAuth();
+  if(!user) return;
+
+  const { data: { session } } = await supabaseClient.auth.getSession();
+
+  const res = await fetch(SUPABASE_URL + '/functions/v1/admin-data', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + session.access_token,
+    },
+  });
+
+  const content = document.getElementById('adminContent');
+
+  if(res.status === 403){
+    content.innerHTML = `
+      <div class="admin-denied">
+        <h2 style="margin-bottom:10px;">Accès refusé</h2>
+        <p style="color:var(--ink-dim);">Ce compte n'a pas les droits administrateur.</p>
+      </div>
+    `;
+    return;
+  }
+
+  const result = await res.json();
+  if(!res.ok || result.error){
+    content.innerHTML = `<p style="color:#E0503A;">Erreur : ${result.error || 'inconnue'}</p>`;
+    return;
+  }
+
+  const { summary, users } = result;
+
+  content.innerHTML = `
+    <div class="admin-stats">
+      <div class="admin-stat-card"><div class="n">${summary.totalUsers}</div><div class="l">Utilisateurs inscrits</div></div>
+      <div class="admin-stat-card"><div class="n">${summary.totalPaid}</div><div class="l">Comptes payants</div></div>
+      <div class="admin-stat-card"><div class="n">${summary.conversionRate}%</div><div class="l">Taux de conversion</div></div>
+      <div class="admin-stat-card"><div class="n">${(summary.totalPaid * 15000).toLocaleString('fr-FR')} F</div><div class="l">Estimation revenus (zone FCFA)</div></div>
+    </div>
+
+    <div class="admin-table-wrap">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Utilisateur</th>
+            <th>Pays</th>
+            <th>Phases faites</th>
+            <th>Statut</th>
+            <th>Inscrit le</th>
+            <th>Dernière activité</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${users.map(u => `
+            <tr>
+              <td>${escapeHtml(u.full_name || u.email)}<br><span style="color:var(--ink-dim);font-size:12px;">${escapeHtml(u.email)}</span></td>
+              <td>${escapeHtml(u.selected_country || '—')}</td>
+              <td>${u.phases_completed} / 7</td>
+              <td><span class="admin-badge ${u.is_paid ? 'paid' : 'free'}">${u.is_paid ? 'Payant · ' + escapeHtml(u.payment_provider || '') : 'Gratuit'}</span></td>
+              <td>${u.created_at ? new Date(u.created_at).toLocaleDateString('fr-FR') : '—'}</td>
+              <td>${u.last_activity ? new Date(u.last_activity).toLocaleDateString('fr-FR') : '—'}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function escapeHtml(str){
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+initAdmin();
+</script>
+
+</body>
+</html>

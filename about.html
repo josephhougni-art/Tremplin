@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>À propos — Tremplin</title>
+<link rel="stylesheet" href="css/marketing.css">
+</head>
+<body>
+
+<header>
+  <div class="container nav">
+    <a href="home.html" class="logo"><span class="logo-dot"></span>Tremplin</a>
+    <div class="nav-links">
+      <a href="login.html" class="btn btn-ghost">Connexion</a>
+      <a href="signup.html" class="btn btn-primary">Commencer</a>
+    </div>
+  </div>
+</header>
+
+<section class="about-hero container">
+  <div class="badge">À propos</div>
+  <h1>Chaque bonne idée mérite d'aller jusqu'au bout.</h1>
+  <p>Tremplin existe parce qu'avoir une idée n'a jamais été le problème. C'est tout ce qu'il y a entre l'idée et un projet vraiment lancé qui décourage la plupart des entrepreneurs.</p>
+</section>
+
+<div class="marquee-wrap" style="margin-bottom:0;">
+  <div class="marquee" id="marquee"></div>
+</div>
+
+<section class="container about-block">
+  <div class="about-text">
+    <div class="eyebrow">Le constat</div>
+    <h2>Entre l'idée et le lancement, il manque une méthode.</h2>
+    <p>Un business plan bien fait, une étude de marché sérieuse, des statuts d'entreprise en règle : tout ça a un coût, en temps ou en argent, que beaucoup d'entrepreneurs ne peuvent pas se permettre au moment où ils en ont le plus besoin — au tout début. Résultat : des idées qui restent des idées, ou des projets lancés sans base solide.</p>
+  </div>
+  <div class="about-visual">
+    <div class="value-grid" style="grid-template-columns:1fr;">
+      <div class="value-card">
+        <div class="icon">💸</div>
+        <h3>Un accompagnement complet coûte cher</h3>
+        <p>Consultant, juriste, coach — additionnés, un vrai accompagnement dépasse largement ce que la plupart des porteurs de projet peuvent investir au démarrage.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="container about-block reverse">
+  <div class="about-text">
+    <div class="eyebrow">Notre approche</div>
+    <h2>Une méthode éprouvée, rendue accessible par l'IA.</h2>
+    <p>Tremplin ne réinvente pas la méthodologie entrepreneuriale — elle s'appuie sur des cadres déjà utilisés dans les incubateurs et accélérateurs (Lean Canvas, validation par entretiens clients, structuration classique d'un business plan). Ce qu'on change, c'est l'accès : un questionnaire guidé, une IA qui structure et rédige, et un parcours qui avance phase après phase, sans jamais brûler d'étape.</p>
+  </div>
+  <div class="about-visual">
+    <div class="value-grid" style="grid-template-columns:1fr;">
+      <div class="value-card">
+        <div class="icon">🧭</div>
+        <h3>7 phases, un seul fil conducteur</h3>
+        <p>De l'idéation au suivi post-lancement, chaque phase déverrouille la suivante — comme un vrai accompagnement, pas une bibliothèque de templates en vrac.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section container">
+  <div class="section-head">
+    <div class="eyebrow">Ce qui nous guide</div>
+    <h2>Nos principes</h2>
+  </div>
+  <div class="value-grid">
+    <div class="value-card">
+      <div class="icon">🌍</div>
+      <h3>Pensé pour ton contexte</h3>
+      <p>Le contenu généré s'adapte à ton pays — réglementation, monnaie, usages locaux — que tu sois en Afrique francophone ou en Europe.</p>
+    </div>
+    <div class="value-card">
+      <div class="icon">🔓</div>
+      <h3>Accessible dès le départ</h3>
+      <p>La première phase est gratuite, sans carte bancaire. Tu avances avant de payer quoi que ce soit.</p>
+    </div>
+    <div class="value-card">
+      <div class="icon">📐</div>
+      <h3>Une vraie méthode, pas des templates</h3>
+      <p>Chaque document a sa place dans un parcours logique, pas dans une liste de fichiers déconnectés les uns des autres.</p>
+    </div>
+    <div class="value-card">
+      <div class="icon">🤝</div>
+      <h3>Une base, pas un substitut</h3>
+      <p>Les documents générés sont un point de départ solide — on encourage toujours à les faire valider par les professionnels compétents (juriste, comptable) le moment venu.</p>
+    </div>
+  </div>
+</section>
+
+<div class="final-cta">
+  <h2>Prêt(e) à structurer ton projet ?</h2>
+  <p>Commence par la Phase 1, gratuite, sans carte bancaire.</p>
+  <a href="signup.html" class="btn btn-primary">Démarrer maintenant</a>
+</div>
+
+<footer class="container">
+  <div class="footer-row">
+    <div>© 2026 Tremplin. Tous droits réservés.</div>
+    <div class="footer-links">
+      <a href="cgv.html">CGV</a><a href="cgu.html">CGU</a><a href="confidentialite.html">Confidentialité</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+const PHASES_PREVIEW = [
+  {n:'01', title:'Idéation'}, {n:'02', title:'Validation marché'}, {n:'03', title:'Cadrage produit'},
+  {n:'04', title:"Plan d'affaires"}, {n:'05', title:'Structuration'}, {n:'06', title:'Lancement'}, {n:'07', title:'Suivi'},
+];
+const items = PHASES_PREVIEW.map(p => `<div class="marquee-item"><span class="num">${p.n}</span>${p.title}</div>`).join('');
+document.getElementById('marquee').innerHTML = items + items;
+</script>
+
+</body>
+</html>

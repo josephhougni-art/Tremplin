@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tremplin — De l'idée au lancement</title>
+<link rel="stylesheet" href="css/style.css">
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="js/supabase-client.js"></script>
+<script src="https://unpkg.com/docx@8/build/index.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+<header class="app-header">
+  <div class="app-nav">
+    <a href="index.html" class="app-logo"><span class="app-logo-dot"></span>Tremplin</a>
+    <div class="app-nav-links">
+      <a href="dashboard.html">Mon tableau de bord</a>
+      <a href="index.html">Accueil</a>
+      <a href="#" onclick="supabaseClient.auth.signOut().then(()=>window.location.href='login.html');return false;">Déconnexion</a>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="hero-block">
+    <div class="eyebrow">Tremplin</div>
+    <h1>De l'idée au lancement, sans jamais te perdre.</h1>
+    <p class="subtitle">Un parcours guidé en 7 étapes pour construire tous les documents dont ton projet a besoin. Réponds à quelques questions par phase, notre IA structure et rédige le reste.</p>
+
+    <div class="trust-bar">
+      <div class="trust-item"><span class="n">7</span><span class="l">phases guidées, du concept au suivi</span></div>
+      <div class="trust-item"><span class="n">18+</span><span class="l">documents générés automatiquement</span></div>
+      <div class="trust-item"><span class="n">1</span><span class="l">phase gratuite pour commencer</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="feature-section">
+  <div class="wrap">
+    <div class="feature-block">
+      <div class="feature-text">
+        <div class="feature-num">01</div>
+        <h2>Réponds à des questions. L'IA fait le reste.</h2>
+        <p>Plus besoin de savoir rédiger un business plan ou un cahier des charges. Tu réponds à des questions simples, en français, par petits blocs — l'IA structure, reformule et rédige les documents complets à ta place.</p>
+      </div>
+      <div class="feature-visual">
+        <div class="mini-row"><span>Quel problème résous-tu ?</span></div>
+        <div class="mini-row"><span>Qui est ta cible ?</span></div>
+        <div class="mini-row"><span>Génération en cours…</span><span class="ok">✓ Note de concept</span></div>
+      </div>
+    </div>
+
+    <div class="feature-block reverse">
+      <div class="feature-text">
+        <div class="feature-num">02</div>
+        <h2>Un vrai parcours, pas une pile de templates.</h2>
+        <p>Chaque phase se débloque une fois la précédente terminée. Tu avances dans l'ordre, avec une vision claire de ce qui a déjà été fait et de ce qu'il reste — comme un accompagnement structuré, pas une bibliothèque de fichiers en vrac.</p>
+      </div>
+      <div class="feature-visual">
+        <div class="mini-row"><span>Phase 1 — Idéation</span><span class="ok">Terminé</span></div>
+        <div class="mini-row"><span>Phase 2 — Validation</span><span class="ok">Terminé</span></div>
+        <div class="mini-row"><span>Phase 3 — Cadrage</span><span>En cours</span></div>
+      </div>
+    </div>
+
+    <div class="feature-block">
+      <div class="feature-text">
+        <div class="feature-num">03</div>
+        <h2>Adapté à ton pays, pas une solution générique.</h2>
+        <p>Statuts d'entreprise, monnaie, réglementation locale : le contenu généré s'ajuste au pays que tu choisis, que tu sois en Afrique francophone ou en Europe.</p>
+      </div>
+      <div class="feature-visual">
+        <div class="mini-chip">Bénin</div><div class="mini-chip">Côte d'Ivoire</div><div class="mini-chip">Sénégal</div>
+        <div class="mini-chip">France</div><div class="mini-chip">Belgique</div><div class="mini-chip">Suisse</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="feature-section">
+  <div class="wrap">
+    <div class="section-head-dark">
+      <div class="eyebrow">Le calcul</div>
+      <h2>Un consultant coûte cher. Tremplin, non.</h2>
+      <p>Ce que ça prendrait de faire ces documents séparément.</p>
+    </div>
+    <div class="compare-dark">
+      <div class="compare-dark-row"><span>Business plan (consultant)</span><span class="cost">~80 000 F</span></div>
+      <div class="compare-dark-row"><span>Statuts & démarches (juriste)</span><span class="cost">~40 000 F</span></div>
+      <div class="compare-dark-row"><span>Étude de marché</span><span class="cost">~30 000 F</span></div>
+      <div class="compare-dark-row"><span>Plan marketing</span><span class="cost">~20 000 F</span></div>
+      <div class="compare-dark-row total"><span>Total séparé</span><span class="cost">170 000+ F</span></div>
+      <div class="compare-dark-row total highlight"><span>Avec Tremplin</span><span class="cost">15 000 F</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="feature-section">
+  <div class="wrap">
+    <div class="section-head-dark">
+      <div class="eyebrow">Questions fréquentes</div>
+      <h2>Tout ce qu'il faut savoir</h2>
+    </div>
+    <div class="faq-dark" id="faqDark"></div>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="section-head-dark" style="margin-top:24px;">
+    <div class="eyebrow">Prêt(e) ?</div>
+    <h2>Commence par choisir ton pays.</h2>
+  </div>
+  <div id="countrySelector"></div>
+
+  <div id="dashboard" class="path"></div>
+
+  <div id="formPanel" class="panel hidden"></div>
+  <div id="resultsPanel" class="panel hidden"></div>
+  <div id="paywallPanel" class="hidden"></div>
+</div>
+
+<footer class="app-footer">
+  <div class="wrap app-footer-row">
+    <div>© 2026 Tremplin. Tous droits réservés.</div>
+    <div class="app-footer-links">
+      <a href="cgv.html">CGV</a><a href="cgu.html">CGU</a><a href="confidentialite.html">Confidentialité</a>
+    </div>
+  </div>
+</footer>
+
+<div id="toast" class="toast"></div>
+
+<script src="js/phase1.js"></script>
+<script src="js/phase2.js"></script>
+<script src="js/phase3.js"></script>
+<script src="js/phase4.js"></script>
+<script src="js/phase5.js"></script>
+<script src="js/phase6.js"></script>
+<script src="js/phase7.js"></script>
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+<script>
+const FAQ_DARK = [
+  {q:'Faut-il des compétences pour utiliser Tremplin ?', a:"Aucune. Tu réponds à des questions simples en français, l'IA se charge de structurer et rédiger les documents."},
+  {q:"Dois-je déjà avoir une entreprise enregistrée ?", a:"Non, Tremplin t'accompagne depuis l'idée, avant toute création formelle."},
+  {q:"Tremplin fonctionne-t-il en dehors de l'Afrique francophone ?", a:"Oui. Tu choisis ton pays au départ, et le contenu généré s'adapte en conséquence."},
+  {q:'Puis-je reprendre une phase plus tard ?', a:"Oui, tes réponses restent modifiables tant que tu n'as pas généré les documents finaux de la phase."},
+];
+document.getElementById('faqDark').innerHTML = FAQ_DARK.map(f => `
+  <div class="faq-dark-item" onclick="this.classList.toggle('open')">
+    <div class="faq-dark-q"><span>${f.q}</span><span class="plus">+</span></div>
+    <div class="faq-dark-a">${f.a}</div>
+  </div>
+`).join('');
+</script>
+</body>
+</html>

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mon tableau de bord — Tremplin</title>
+<link rel="stylesheet" href="css/marketing.css">
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="js/supabase-client.js"></script>
+</head>
+<body>
+
+<header>
+  <div class="container nav">
+    <a href="index.html" class="logo"><span class="logo-dot"></span>Tremplin</a>
+    <div class="nav-links">
+      <div class="user-chip">
+        <span class="plan-tag" id="planTag">Phase 1 · Gratuit</span>
+        <div class="avatar" style="background:#049B8B;" id="userAvatar">?</div>
+      </div>
+      <button class="btn btn-ghost" onclick="logout()">Se déconnecter</button>
+    </div>
+  </div>
+</header>
+
+<div class="dash-wrap">
+  <div class="container dash-header">
+    <div class="dash-greeting">Bon retour</div>
+    <h1 id="greeting">Bonjour 👋</h1>
+  </div>
+
+  <div class="container dash-grid">
+    <div style="display:flex;flex-direction:column;gap:24px;">
+
+      <div class="dash-card">
+        <h2>Ton avancement</h2>
+        <div class="progress-overview">
+          <div class="progress-ring-label">
+            <div class="n" id="progressCount">2/7</div>
+            <div class="l">phases terminées</div>
+          </div>
+          <div class="progress-bar-track"><div class="progress-bar-fill" id="progressFill" style="width:0%"></div></div>
+        </div>
+        <div id="phaseList"></div>
+      </div>
+
+      <div class="dash-card">
+        <h2>Documents générés</h2>
+        <div id="docList"></div>
+      </div>
+
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:24px;">
+      <div class="dash-card">
+        <h2>Ton projet</h2>
+        <div class="sidebar-stat"><span class="label">Pays</span><span class="value" id="sidebarCountry">Bénin</span></div>
+        <div class="sidebar-stat"><span class="label">Formule</span><span class="value">Phase 1 gratuite</span></div>
+        <div class="sidebar-stat"><span class="label">Démarré le</span><span class="value">12 juil. 2026</span></div>
+      </div>
+
+      <div class="dash-card">
+        <h2>Débloquer la suite</h2>
+        <p style="font-size:13.5px;color:var(--ink-dim);margin-bottom:16px;">Accède aux 5 phases restantes pour 15 000 F, paiement unique.</p>
+        <a href="checkout.html" class="btn btn-primary btn-block">Voir les options</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="js/phase1.js"></script>
+<script src="js/phase2.js"></script>
+<script src="js/phase3.js"></script>
+<script src="js/phase4.js"></script>
+<script src="js/phase5.js"></script>
+<script src="js/phase6.js"></script>
+<script src="js/phase7.js"></script>
+<script src="js/data.js"></script>
+<script>
+async function logout(){
+  await supabaseClient.auth.signOut();
+  window.location.href = 'login.html';
+}
+
+async function initDashboard(){
+  const user = await requireAuth();
+  if(!user) return; // requireAuth a déjà redirigé vers login.html
+
+  const name = user.user_metadata && user.user_metadata.full_name ? user.user_metadata.full_name : user.email;
+  document.getElementById('greeting').textContent = `Bonjour, ${name} 👋`;
+  document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
+
+  const { data, error } = await supabaseClient
+    .from('progress')
+    .select('selected_country, unlocked_up_to, phase_results')
+    .eq('user_id', user.id)
+    .maybeSingle();
+
+  const PROGRESS = {
+    selectedCountry: (data && data.selected_country) || '',
+    unlockedUpTo: (data && data.unlocked_up_to) || 0,
+    phaseResults: (data && data.phase_results) || {}
+  };
+  if(error) console.warn('Lecture de la progression impossible :', error.message);
+
+  const doneIndexes = Object.keys(PROGRESS.phaseResults).map(Number);
+
+  function phaseRowStatus(i){
+    if(PROGRESS.phaseResults[i]) return 'done';
+    if(i <= PROGRESS.unlockedUpTo) return 'active';
+    return 'locked';
+  }
+
+  document.getElementById('sidebarCountry').textContent = PROGRESS.selectedCountry || 'Non renseigné';
+
+  const doneCount = doneIndexes.length;
+  document.getElementById('progressCount').textContent = `${doneCount}/${PHASES.length}`;
+  document.getElementById('progressFill').style.width = `${(doneCount / PHASES.length) * 100}%`;
+
+  document.getElementById('phaseList').innerHTML = PHASES.map((p,i) => {
+    const status = phaseRowStatus(i);
+    const statusLabel = status === 'done' ? 'Terminé' : status === 'active' ? 'En cours' : 'Verrouillé';
+    const actionLabel = status === 'done' ? 'Revoir' : status === 'active' ? 'Continuer' : '';
+    return `
+      <div class="phase-row">
+        <div class="phase-row-marker ${status}">${status==='done' ? '✓' : (i+1)}</div>
+        <div class="phase-row-body">
+          <div class="phase-row-title">Phase ${i+1} — ${p.title}</div>
+          <div class="phase-row-status">${statusLabel}</div>
+        </div>
+        ${actionLabel ? `<a href="app.html" class="btn btn-ghost">${actionLabel}</a>` : ''}
+      </div>
+    `;
+  }).join('');
+
+  let docsHtml = '';
+  doneIndexes.sort((a,b)=>a-b).forEach(idx => {
+    const phase = PHASES[idx];
+    docsHtml += `
+      <div class="doc-item">
+        <div>
+          <div class="doc-item-name">Pack Phase ${idx+1} — ${phase.title}</div>
+          <div class="doc-item-meta">${phase.docs.length} documents</div>
+        </div>
+        <a href="app.html">Télécharger</a>
+      </div>
+    `;
+  });
+  document.getElementById('docList').innerHTML = docsHtml || '<p style="font-size:13.5px;color:var(--ink-dim);">Aucun document généré pour le moment — <a href="app.html">commence la Phase 1</a>.</p>';
+}
+
+initDashboard();
+</script>
+
+</body>
+</html>

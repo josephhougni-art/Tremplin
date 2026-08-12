@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Créer mon compte — Tremplin</title>
+<link rel="stylesheet" href="css/marketing.css">
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="js/supabase-client.js"></script>
+</head>
+<body>
+
+<header>
+  <div class="container nav">
+    <a href="home.html" class="logo"><span class="logo-dot"></span>Tremplin</a>
+    <div class="nav-links">
+      <a href="login.html" class="btn btn-ghost">Connexion</a>
+    </div>
+  </div>
+</header>
+
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-head">
+      <h1>Crée ton compte</h1>
+      <p>Commence la Phase 1 gratuitement, en 2 minutes.</p>
+    </div>
+
+    <form id="signupForm" novalidate>
+      <div class="field" id="nameField">
+        <label for="name">Nom complet</label>
+        <input type="text" id="name" placeholder="Ton nom">
+        <div class="field-error">Entre ton nom.</div>
+      </div>
+      <div class="field" id="emailField">
+        <label for="email">Adresse email</label>
+        <input type="email" id="email" placeholder="toi@exemple.com">
+        <div class="field-error">Entre une adresse email valide.</div>
+      </div>
+      <div class="field" id="passwordField">
+        <label for="password">Mot de passe</label>
+        <input type="password" id="password" placeholder="8 caractères minimum">
+        <div class="field-error">8 caractères minimum.</div>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block" id="submitBtn">Créer mon compte</button>
+      <div id="formError" style="color:#E0503A;font-size:13px;margin-top:12px;text-align:center;"></div>
+    </form>
+
+    <div class="auth-divider">ou</div>
+    <button class="btn btn-ghost btn-block" onclick="alert('Connexion Google à intégrer')">Continuer avec Google</button>
+
+    <div class="auth-switch">Déjà un compte ? <a href="login.html">Se connecter</a></div>
+  </div>
+</div>
+
+<p class="auth-note">Gratuit. Aucune carte bancaire requise pour la Phase 1.</p>
+
+<script>
+function setError(fieldId, hasError){
+  document.getElementById(fieldId).classList.toggle('has-error', hasError);
+}
+
+document.getElementById('signupForm').addEventListener('submit', async function(e){
+  e.preventDefault();
+
+  const name = document.getElementById('name').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+  const nameOk = name.length > 0;
+  const emailOk = emailValid;
+  const passwordOk = password.length >= 8;
+
+  setError('nameField', !nameOk);
+  setError('emailField', !emailOk);
+  setError('passwordField', !passwordOk);
+  document.getElementById('formError').textContent = '';
+
+  if(!nameOk || !emailOk || !passwordOk){
+    const firstInvalid = !nameOk ? 'name' : !emailOk ? 'email' : 'password';
+    document.getElementById(firstInvalid).focus();
+    return;
+  }
+
+  const submitBtn = document.getElementById('submitBtn');
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Création en cours...';
+
+  const { data, error } = await supabaseClient.auth.signUp({
+    email,
+    password,
+    options: { data: { full_name: name } }
+  });
+
+  submitBtn.disabled = false;
+  submitBtn.textContent = 'Créer mon compte';
+
+  if(error){
+    document.getElementById('formError').textContent = error.message === 'User already registered'
+      ? 'Un compte existe déjà avec cet email.'
+      : "Une erreur est survenue : " + error.message;
+    return;
+  }
+
+  window.location.href = 'dashboard.html';
+});
+</script>
+
+</body>
+</html>
