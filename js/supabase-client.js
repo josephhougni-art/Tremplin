@@ -10,8 +10,8 @@
 //    (Project > SQL Editor > New query > colle le contenu > Run)
 // ============================================================
 
-const SUPABASE_URL = 'https://zceqjwycneloyjfidshv.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpjZXFqd3ljbmVsb3lqZmlkc2h2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU0Nzg3NjUsImV4cCI6MjEwMTA1NDc2NX0.n2ZFMGohrP9YYAzK61iNgfqiCDjzsjydmn9c0tPukiM';
+const SUPABASE_URL = '';
+const SUPABASE_ANON_KEY = '';
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 /**
